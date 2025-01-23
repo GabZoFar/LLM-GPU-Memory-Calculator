@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 st.title("🧠 GPU Memory Calculator for LLMs")
-st.write("Estimate GPU memory/ VRAM requirements for Hugging Face models")
+st.write("Estimate GPU memory requirements for Hugging Face models")
 
 # Initialize Hugging Face API
 hf_api = HfApi()
@@ -18,7 +18,7 @@ hf_api = HfApi()
 status_placeholder = st.empty()
 
 # Search functionality
-search_query = st.text_input("Type to search for models on Hugging Face", placeholder="Enter model name (e.g., llama, gpt)")
+search_query = st.text_input("Search for models", placeholder="Enter model name (e.g., llama, gpt)")
 
 # Add quick search buttons
 col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -26,13 +26,13 @@ with col1:
     if st.button("Nvidia"):
         search_query = "Nvidia"
 with col2:
-    if st.button("Nemotron"):
-        search_query = "Nemotron"
+    if st.button("nemotron"):
+        search_query = "nemotron"
 with col3:
     if st.button("DeepSeek"):
         search_query = "DeepSeek"
 with col4:
-    if st.button("Mistral"):
+    if st.button("mistral"):
         search_query = "mistral"
 with col5:
     if st.button("bartowski"):
@@ -61,52 +61,65 @@ if search_query:
         models.sort(key=lambda x: x["downloads"] if x["downloads"] is not None else 0, reverse=True)
         model_ids = [model["id"] for model in models]
         
-        # Create two columns for model and dtype selection
-        col1, col2 = st.columns(2)
+        # Initialize session state for selected values if they don't exist
+        if 'selected_model' not in st.session_state:
+            st.session_state.selected_model = model_ids[0]
+        if 'selected_dtype' not in st.session_state:
+            st.session_state.selected_dtype = "float16"
         
-        with col1:
-            selected_model = st.selectbox(
-                "Select a model",
-                model_ids,
-                index=0
-            )
-        
-        with col2:
-            dtype = st.selectbox(
-                "Select data type",
-                list(bytes_per_dtype.keys()),
-                index=list(bytes_per_dtype.keys()).index("float16")
-            )
+        # Create a form to prevent automatic reruns
+        with st.form("model_form"):
+            # Create two columns for model and dtype selection
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                selected_model = st.selectbox(
+                    "Select a model",
+                    model_ids,
+                    index=model_ids.index(st.session_state.selected_model)
+                )
+            
+            with col2:
+                dtype = st.selectbox(
+                    "Select data type",
+                    list(bytes_per_dtype.keys()),
+                    index=list(bytes_per_dtype.keys()).index(st.session_state.selected_dtype)
+                )
 
-        # Add dtype explanations
-        st.markdown("""
-        **Data Type Information:**
-        - **float16**: Often used in GPU training to save memory while maintaining reasonable precision
-        - **bfloat16**: Popular in neural networks as it has a better dynamic range
-        - **float32**: Standard choice when memory isn't a constraint and you need good precision
-        """)
-        
-        if st.button("Calculate Memory Requirements"):
-            # Show download status
-            status_placeholder.code("model.safetensors.index.json: Downloading metadata...")
+            # Add dtype explanations
+            st.markdown("""
+            **Data Type Information:**
+            - **float16**: Often used in GPU training to save memory while maintaining reasonable precision
+            - **bfloat16**: Popular in neural networks as it has a better dynamic range
+            - **float32**: Standard choice when memory isn't a constraint and you need good precision
+            """)
             
-            memory_size = get_model_size(selected_model, dtype)
+            # Replace button with form submit button
+            submitted = st.form_submit_button("Calculate Memory Requirements")
             
-            # Clear status
-            status_placeholder.empty()
-            
-            if memory_size is not None:
-                st.success(f"Estimated GPU memory requirement: **{memory_size:.2f} GiB** ({dtype})")
+            if submitted:
+                # Update session state
+                st.session_state.selected_model = selected_model
+                st.session_state.selected_dtype = dtype
                 
-                # Additional information
-                st.info("""
-                📝 **Note:**
-                - This is an estimate that includes an 18% overhead for CUDA kernels and runtime requirements
-                - Actual memory usage may vary depending on your specific setup and usage
-                - Memory calculation uses binary prefix (1024³ bytes per GiB)
-                """)
-            else:
-                st.error("Could not calculate memory requirements. The model might not have proper metadata.")
+                # Show progress through multiple status updates
+                status_placeholder.info("Starting calculation...")
+                status_placeholder.code("model.safetensors.index.json: Downloading metadata...")
+                
+                memory_size = get_model_size(selected_model, dtype)
+                
+                if memory_size is not None:
+                    status_placeholder.success("✅ Calculation complete!")
+                    st.success(f"Estimated GPU memory requirement: **{memory_size:.2f} GiB** ({dtype})")
+                    
+                    st.info("""
+                    📝 **Note:**
+                    - This is an estimate that includes an 18% overhead for CUDA kernels and runtime requirements
+                    - Actual memory usage may vary depending on your specific setup and usage
+                    - Memory calculation uses binary prefix (1024³ bytes per GiB)
+                    """)
+                else:
+                    status_placeholder.error("❌ Could not calculate memory requirements. The model might not have proper metadata.")
     else:
         st.warning("No models found matching your search query.")
 
