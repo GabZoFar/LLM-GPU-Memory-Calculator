@@ -113,6 +113,6 @@ if search_query:
 # Footer
 st.markdown("---")
 st.markdown(
-    "Orignal Gist from [philschmid](https://gist.github.com/philschmid). Made with ❤️ by Gabrielle using [Streamlit](https://streamlit.io) | "
+    "Orignal Gist from [philschmid](https://gist.github.com/philschmid). Made with ❤️ by [Gabriel](https://github.com/gabzofar) using [Streamlit](https://streamlit.io) | "
     "Data from [🤗 Hugging Face](https://huggingface.co)"
 )
