@@ -2,7 +2,7 @@
 
 A Streamlit web application that helps you estimate GPU memory requirements for Hugging Face models. Original gist by [@philschmid](https://gist.github.com/philschmid).
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/gabzofar/llm-gpu-memory-calculator)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://llm-gpu-memory-calculator.streamlit.app/)
 
 ## Features
 
