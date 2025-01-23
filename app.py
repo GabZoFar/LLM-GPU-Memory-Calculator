@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 st.title("🧠 GPU Memory Calculator for LLMs")
-st.write("Estimate GPU memory requirements for Hugging Face models")
+st.write("Estimate GPU memory/ VRAM requirements for Hugging Face models")
 
 # Initialize Hugging Face API
 hf_api = HfApi()
