@@ -18,7 +18,7 @@ hf_api = HfApi()
 status_placeholder = st.empty()
 
 # Search functionality
-search_query = st.text_input("Search for models", placeholder="Enter model name (e.g., llama, gpt)")
+search_query = st.text_input("Type to search for models on Hugging Face", placeholder="Enter model name (e.g., llama, gpt)")
 
 # Add quick search buttons
 col1, col2, col3, col4, col5, col6 = st.columns(6)
@@ -26,13 +26,13 @@ with col1:
     if st.button("Nvidia"):
         search_query = "Nvidia"
 with col2:
-    if st.button("nemotron"):
-        search_query = "nemotron"
+    if st.button("Nemotron"):
+        search_query = "Nemotron"
 with col3:
     if st.button("DeepSeek"):
         search_query = "DeepSeek"
 with col4:
-    if st.button("mistral"):
+    if st.button("Mistral"):
         search_query = "mistral"
 with col5:
     if st.button("bartowski"):
